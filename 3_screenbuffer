@@ -1,0 +1,162 @@
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <time.h>
+#include <unistd.h>
+#endif
+
+#define SCREEN_WIDTH 40
+#define SCREEN_HEIGHT 24
+
+// 화면 버퍼를 나타내는 2차원 배열 (각 픽셀은 2개의 char로 구성됨)
+char screenBuffer[SCREEN_HEIGHT][SCREEN_WIDTH * 2];
+
+// 화면을 초기화하는 함수
+void initScreenBuffer() {
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH * 2; x++) {
+            screenBuffer[y][x] = ' ';  // 빈 공간으로 초기화
+        }
+    }
+}
+
+// 화면 버퍼에 데이터를 렌더링하는 함수
+void render() {
+    // 화면 버퍼를 한 번에 출력
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH * 2; x++) {
+            putchar(screenBuffer[y][x]);
+        }
+        putchar('\n');  // 한 줄을 출력하고 다음 줄로
+    }
+}
+
+// 픽셀을 화면에 그리는 함수
+void drawPixel(int x, int y, char c1, char c2) {
+    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) {
+        screenBuffer[y][x * 2] = c1;   // 첫 번째 char
+        screenBuffer[y][x * 2 + 1] = c2; // 두 번째 char
+    }
+}
+
+void processInput() {
+    printf("Processing Input...\n");
+}
+
+void update() {
+    printf("Updating Game State...\n");
+}
+
+int main() {
+    const int FPS = 60;
+    const double frameDelay = 1000.0 / FPS;
+
+#ifdef _WIN32
+    LARGE_INTEGER frequency, startTime, endTime;
+    QueryPerformanceFrequency(&frequency);
+#else
+    struct timespec startTime, endTime;
+#endif
+
+    // 화면 버퍼 초기화
+    initScreenBuffer();
+
+    while (1) {
+#ifdef _WIN32
+        QueryPerformanceCounter(&startTime);
+#else
+        clock_gettime(CLOCK_MONOTONIC, &startTime);
+#endif
+
+        // 게임 로직 처리
+        processInput();
+        update();
+
+        // 예시로 몇 개의 픽셀을 그려봄
+        drawPixel(10, 5, 'X', ' ');  // (10, 5) 위치에 'X' 문자를 그리기
+        drawPixel(20, 10, 'O', '*'); // (20, 10) 위치에 'O'와 '*' 조합을 그리기
+        drawPixel(30, 15, '#', '#'); // (30, 15) 위치에 '#' 두 개를 그리기
+
+        // 화면 렌더링
+        render();
+
+#ifdef _WIN32
+        QueryPerformanceCounter(&endTime);
+        double elapsedTime = (double)(endTime.QuadPart - startTime.QuadPart) * 1000.0 / frequency.QuadPart;
+        if (elapsedTime < frameDelay) {
+            Sleep((DWORD)(frameDelay - elapsedTime));
+        }
+#else
+        clock_gettime(CLOCK_MONOTONIC, &endTime);
+        long elapsedTime = (endTime.tv_sec - startTime.tv_sec) * 1000000L +
+            (endTime.tv_nsec - startTime.tv_nsec) / 1000;
+        if (elapsedTime < frameDelay * 1000) {
+            usleep((frameDelay * 1000) - elapsedTime);
+        }
+#endif
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+#include <stdio.h>
+#include <string.h>
+
+#define SCREEN_WIDTH 40
+#define SCREEN_HEIGHT 24
+
+// 화면 버퍼를 나타내는 2차원 배열
+char screenBuffer[SCREEN_HEIGHT][SCREEN_WIDTH * 2]; // 각 픽셀은 2개의 char로 구성됨
+
+// 화면을 초기화하는 함수
+void initScreenBuffer() {
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH * 2; x++) {
+            screenBuffer[y][x] = ' ';  // 빈 공간으로 초기화
+        }
+    }
+}
+
+// 화면 버퍼에 데이터를 렌더링하는 함수
+void render() {
+    // 버퍼 출력
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH * 2; x++) {
+            putchar(screenBuffer[y][x]);
+        }
+        putchar('\n');  // 한 줄을 출력하고 다음 줄로
+    }
+}
+
+// 픽셀을 화면에 그리는 함수
+void drawPixel(int x, int y, char c1, char c2) {
+    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT) {
+        screenBuffer[y][x * 2] = c1;   // 첫 번째 char
+        screenBuffer[y][x * 2 + 1] = c2; // 두 번째 char
+    }
+}
+
+int main() {
+    // 화면 버퍼 초기화
+    initScreenBuffer();
+
+    // 예시로 몇 개의 픽셀을 그려봄
+    drawPixel(10, 5, 'X', ' ');  // (10, 5) 위치에 'X' 문자를 그리기
+    drawPixel(20, 10, 'O', '*'); // (20, 10) 위치에 'O'와 '*' 조합을 그리기
+    drawPixel(30, 15, '#', '#'); // (30, 15) 위치에 '#' 두 개를 그리기
+
+    // 화면 렌더링
+    render();
+
+    return 0;
+}
+
