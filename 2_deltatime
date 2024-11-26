@@ -1,0 +1,69 @@
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <time.h>
+#include <unistd.h>
+#endif
+
+void processInput() {
+    // 입력 처리 로직
+}
+
+void update(float deltaTime) {
+    // 게임 상태 업데이트 로직
+    printf("Updating with deltaTime: %.6f seconds\n", deltaTime);
+}
+
+void render() {
+    // 화면 렌더링 로직
+    printf("Rendering Frame\n");
+}
+
+int main() {
+    const int FPS = 60;
+    const double frameDelay = 1000.0 / FPS; // 한 프레임에 걸리는 시간 (밀리초)
+    double deltaTime = 0.0;
+
+#ifdef _WIN32
+    LARGE_INTEGER frequency, startTime, endTime;
+    QueryPerformanceFrequency(&frequency);
+#else
+    struct timespec startTime, endTime;
+#endif
+
+    while (1) {
+#ifdef _WIN32
+        QueryPerformanceCounter(&startTime);
+#else
+        clock_gettime(CLOCK_MONOTONIC, &startTime);
+#endif
+
+        // 게임 루프 실행
+        processInput();
+        update((float)deltaTime);
+        render();
+
+#ifdef _WIN32
+        QueryPerformanceCounter(&endTime);
+        deltaTime = (double)(endTime.QuadPart - startTime.QuadPart) / frequency.QuadPart; // 초 단위
+#else
+        clock_gettime(CLOCK_MONOTONIC, &endTime);
+        deltaTime = (endTime.tv_sec - startTime.tv_sec) +
+            (endTime.tv_nsec - startTime.tv_nsec) / 1e9; // 초 단위
+#endif
+
+        // CPU 버닝 방지: 작업이 빨리 끝났으면 남은 시간 대기
+        double elapsedMillis = deltaTime * 1000.0; // deltaTime을 밀리초 단위로 변환
+        if (elapsedMillis < frameDelay) {
+#ifdef _WIN32
+            Sleep((DWORD)(frameDelay - elapsedMillis));
+#else
+            usleep((frameDelay - elapsedMillis) * 1000); // 마이크로초 단위
+#endif
+        }
+    }
+
+    return 0;
+}
