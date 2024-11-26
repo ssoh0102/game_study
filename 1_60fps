@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <time.h>
+#include <unistd.h>
+#endif
+
+void processInput() {
+    printf("Processing Input...\n");
+}
+
+void update() {
+    printf("Updating Game State...\n");
+}
+
+void render() {
+    printf("Rendering Frame...\n");
+}
+
+int main() {
+    const int FPS = 60;
+    const double frameDelay = 1000.0 / FPS;
+
+#ifdef _WIN32
+    LARGE_INTEGER frequency, startTime, endTime;
+    QueryPerformanceFrequency(&frequency);
+#else
+    struct timespec startTime, endTime;
+#endif
+
+    while (1) {
+#ifdef _WIN32
+        QueryPerformanceCounter(&startTime);
+#else
+        clock_gettime(CLOCK_MONOTONIC, &startTime);
+#endif
+
+        processInput();
+        update();
+        render();
+
+#ifdef _WIN32
+        QueryPerformanceCounter(&endTime);
+        double elapsedTime = (double)(endTime.QuadPart - startTime.QuadPart) * 1000.0 / frequency.QuadPart;
+        if (elapsedTime < frameDelay) {
+            Sleep((DWORD)(frameDelay - elapsedTime));
+        }
+#else
+        clock_gettime(CLOCK_MONOTONIC, &endTime);
+        long elapsedTime = (endTime.tv_sec - startTime.tv_sec) * 1000000L +
+            (endTime.tv_nsec - startTime.tv_nsec) / 1000;
+        if (elapsedTime < frameDelay * 1000) {
+            usleep((frameDelay * 1000) - elapsedTime);
+        }
+#endif
+    }
+
+    return 0;
+}
