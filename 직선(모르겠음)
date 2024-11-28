@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <math.h>
+
+// 상수 정의
+#define M_PI 3.14159265358979323846
+#define DEG_TO_RAD(angle) ((angle) * M_PI / 180.0) // 도를 라디안으로 변환
+
+// 화면 크기 정의
+#define CANVAS_WIDTH 80
+#define CANVAS_HEIGHT 40
+
+// 좌표를 회전시키는 함수 (행렬 변환 사용)
+void rotatePoint(double x, double y, double angle, double* newX, double* newY) {
+    double rad = DEG_TO_RAD(angle);
+    *newX = x * cos(rad) - y * sin(rad);
+    *newY = x * sin(rad) + y * cos(rad);
+}
+
+void drawConnectedLines() {
+    int lengths[] = { 3, 6, 9 };     // 각 직선의 길이 (픽셀 단위)
+    double angles[] = { 0, 30, 30 }; // 각 직선의 회전 각도 (도 단위)
+    double angleAccum = 0;         // 누적 각도
+    double x = 0, y = -15;         // 시작 좌표 (위쪽으로 이동)
+    double xEnd, yEnd;
+
+    // 화면 캔버스 설정
+    char canvas[CANVAS_HEIGHT][CANVAS_WIDTH];
+    for (int i = 0; i < CANVAS_HEIGHT; i++) {
+        for (int j = 0; j < CANVAS_WIDTH; j++) {
+            canvas[i][j] = ' '; // 캔버스 초기화
+        }
+    }
+
+    // 직선 그리기
+    for (int i = 0; i < 3; i++) {
+        // 누적 각도를 사용해 끝점 계산
+        angleAccum += angles[i];
+        rotatePoint(lengths[i] * 2, 0, angleAccum, &xEnd, &yEnd); // 가로 비율 2배로 조정
+
+        // 끝점으로 이동
+        xEnd += x;
+        yEnd += y;
+
+        // 직선 그리기 (DDA 알고리즘 사용)
+        int dx = (int)(xEnd - x);
+        int dy = (int)(yEnd - y);
+        int steps = (abs(dx) > abs(dy)) ? abs(dx) : abs(dy);
+
+        double xInc = dx / (double)steps;
+        double yInc = dy / (double)steps;
+
+        double currX = x, currY = y;
+        for (int j = 0; j <= steps; j++) {
+            int canvasX = (int)(currX + CANVAS_WIDTH / 2); // 중앙 정렬
+            int canvasY = (int)(currY + CANVAS_HEIGHT / 2);
+            if (canvasX >= 0 && canvasX < CANVAS_WIDTH && canvasY >= 0 && canvasY < CANVAS_HEIGHT) {
+                canvas[canvasY][canvasX] = '-'; // 모든 부분을 '-'로 표시하여 일관성 유지
+            }
+            currX += xInc;
+            currY += yInc;
+        }
+
+        // 시작점 갱신
+        x = xEnd;
+        y = yEnd;
+    }
+
+    // 직선 c의 끝점에 "ff" 추가
+    int canvasX = (int)(x + CANVAS_WIDTH / 2);
+    int canvasY = (int)(y + CANVAS_HEIGHT / 2);
+
+    if (canvasX >= 0 && canvasX + 1 < CANVAS_WIDTH && canvasY >= 0 && canvasY < CANVAS_HEIGHT) {
+        canvas[canvasY][canvasX] = 'f';
+        if (canvasX + 1 < CANVAS_WIDTH) {
+            canvas[canvasY][canvasX + 1] = 'f';
+        }
+    }
+
+    // 캔버스 출력
+    for (int i = 0; i < CANVAS_HEIGHT; i++) {
+        for (int j = 0; j < CANVAS_WIDTH; j++) {
+            printf("%c", canvas[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    drawConnectedLines();
+    return 0;
+}
