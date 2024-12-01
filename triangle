@@ -1,0 +1,54 @@
+#include <stdio.h>
+
+#define WIDTH 40                    // 콘솔의 가로 크기
+#define HEIGHT 20                   // 콘솔의 세로 크기
+
+int main() {
+    int triBaseLeft = 10;          // 삼각형의 왼쪽 X 좌표
+    int triBaseTop = 15;           // 삼각형의 밑변의 Y 좌표
+    int triHeight = 8;             // 삼각형의 높이
+
+    char canvas[HEIGHT][WIDTH];    // 화면을 나타내는 2차원 배열
+
+    // 배열 초기화 (모두 공백으로)
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            canvas[i][j] = ' ';
+        }
+    }
+
+    // 삼각형을 배열에 '/'와 '|' 및 '_'로 그리기
+    for (int i = 0; i < triHeight; i++) {
+        int xLeft = triBaseLeft + i;
+        int xRight = triBaseLeft + (triHeight - 1) * 2 - i;
+        int y = triBaseTop - i;
+
+        // 배열 범위 내에 있는지 확인하고 '/' 또는 '|'으로 설정
+        if (y >= 0 && y < HEIGHT && xLeft >= 0 && xLeft < WIDTH) {
+            canvas[y][xLeft] = '/';
+        }
+        if (y >= 0 && y < HEIGHT && xRight >= 0 && xRight < WIDTH) {
+            canvas[y][xRight] = '|';
+        }
+    }
+
+    // 삼각형의 밑변을 배열에 '_'로 그리기
+    for (int j = 0; j < (triHeight - 1) * 2 + 1; j++) {
+        int x = triBaseLeft + j;
+        int y = triBaseTop;
+
+        if (y >= 0 && y < HEIGHT && x >= 0 && x < WIDTH) {
+            canvas[y][x] = '_';
+        }
+    }
+
+    // 배열을 콘솔에 출력
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            putchar(canvas[i][j]);
+        }
+        putchar('\n');
+    }
+
+    return 0;
+}
