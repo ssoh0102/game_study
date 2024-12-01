@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <math.h>
+
+#define M_PI 3.14159265358979323846  // π 값을 직접 정의
+
+int main() {
+    int radius = 5;                // 원의 반지름을 줄임
+    int centerX = 40;              // 원의 중심 X 좌표
+    int centerY = 10;              // 원의 중심 Y 좌표
+    double angleStep = M_PI / 50;  // 각도를 나누는 간격
+    double verticalStretch = 0.5;  // 세로 보정 비율 (세로를 더 압축)
+
+    // 각도를 이용해 원의 좌표 찍기
+    for (double angle = 0; angle < 2 * M_PI; angle += angleStep) {
+        // 각도에 따라 x, y 좌표 계산
+        int x = (int)(radius * cos(angle)) + centerX;
+        int y = (int)(radius * sin(angle) * verticalStretch) + centerY;
+
+        // 커서를 해당 좌표로 이동하고 '*' 출력
+        printf("\033[%d;%dH*", y, x);
+    }
+
+    // 커서 위치를 아래로 이동하여 출력이 끝났음을 명시
+    printf("\033[%d;%dH", centerY + radius + 2, 0);
+
+    return 0;
+}
