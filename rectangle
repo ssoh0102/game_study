@@ -1,33 +1,43 @@
 #include <stdio.h>
 
+#define WIDTH 40                    // 콘솔의 가로 크기
+#define HEIGHT 20                   // 콘솔의 세로 크기
+
 int main() {
-    int left = 10;   // 사각형의 왼쪽 X 좌표
-    int top = 5;     // 사각형의 위쪽 Y 좌표
-    int width = 20;  // 사각형의 너비
-    int height = 10; // 사각형의 높이
+    int rectLeft = 5;            // 사각형의 왼쪽 X 좌표
+    int rectTop = 3;             // 사각형의 위쪽 Y 좌표
+    int rectWidth = 15;          // 사각형의 너비
+    int rectHeight = 8;          // 사각형의 높이
 
-    // 윗변 그리기
-    for (int x = 0; x < width; x++) {
-        printf("\033[%d;%dH-", top, left + x);
+    char canvas[HEIGHT][WIDTH];    // 화면을 나타내는 2차원 배열
+
+    // 배열 초기화 (모두 공백으로)
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            canvas[i][j] = ' ';
+        }
     }
 
-    // 아랫변 그리기
-    for (int x = 0; x < width; x++) {
-        printf("\033[%d;%dH-", top + height - 1, left + x);
+    // 사각형을 배열에 '#'으로 그리기
+    for (int i = 0; i < rectHeight; i++) {
+        for (int j = 0; j < rectWidth; j++) {
+            int x = rectLeft + j;
+            int y = rectTop + i;
+
+            // 배열 범위 내에 있는지 확인하고 '#'으로 설정
+            if (y >= 0 && y < HEIGHT && x >= 0 && x < WIDTH) {
+                canvas[y][x] = '#';
+            }
+        }
     }
 
-    // 왼쪽변 그리기
-    for (int y = 0; y < height; y++) {
-        printf("\033[%d;%dH|", top + y, left);
+    // 배열을 콘솔에 출력
+    for (int i = 0; i < HEIGHT; i++) {
+        for (int j = 0; j < WIDTH; j++) {
+            putchar(canvas[i][j]);
+        }
+        putchar('\n');
     }
-
-    // 오른쪽변 그리기
-    for (int y = 0; y < height; y++) {
-        printf("\033[%d;%dH|", top + y, left + width - 1);
-    }
-
-    // 커서 위치를 아래로 이동하여 출력이 끝났음을 명시
-    printf("\033[%d;%dH", top + height + 2, 0);
 
     return 0;
 }
